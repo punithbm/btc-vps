@@ -24,3 +24,20 @@ body {
   padding: 0;
   margin: 0;
 }
+
+/* MapLibre GL specific styles */
+.maplibregl-map {
+  font-family: inherit;
+}
+
+.maplibregl-canvas-container {
+  cursor: grab;
+}
+
+.maplibregl-canvas-container.maplibregl-interactive {
+  cursor: grab;
+}
+
+.maplibregl-canvas-container.maplibregl-interactive:active {
+  cursor: grabbing;
+}

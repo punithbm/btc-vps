@@ -31,12 +31,16 @@ export default function MapView({ simulationMode, onStatsUpdate }: MapViewProps)
 
         const data: BitNodesData = await response.json();
         console.log("Data loaded successfully:", data.total_nodes, "nodes");
+        console.log("Sample node data:", Object.keys(data.nodes).slice(0, 3));
         setBitNodesData(data);
 
         // Update stats
+        const heights = Object.values(data.nodes).map((node) => node[4]);
+        const maxHeight = heights.length > 0 ? Math.max(...heights) : 0;
+
         onStatsUpdate({
           totalNodes: data.total_nodes,
-          consensusHeight: Math.max(...Object.values(data.nodes).map((node) => node[4])),
+          consensusHeight: maxHeight,
           timestamp: data.timestamp,
         });
 
@@ -44,7 +48,7 @@ export default function MapView({ simulationMode, onStatsUpdate }: MapViewProps)
         setIsLoading(false);
       } catch (error) {
         console.error("Failed to load bitnodes data:", error);
-        setError(`Failed to load data: ${error}`);
+        setError(`Failed to load data: ${error instanceof Error ? error.message : String(error)}`);
         setIsLoading(false);
       }
     };
@@ -64,14 +68,36 @@ export default function MapView({ simulationMode, onStatsUpdate }: MapViewProps)
       console.log("Creating MapLibre map...");
       map.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: "https://demotiles.maplibre.org/style.json",
+        style: {
+          version: 8,
+          sources: {
+            osm: {
+              type: "raster",
+              tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+              tileSize: 256,
+              attribution: "© OpenStreetMap contributors",
+            },
+          },
+          layers: [
+            {
+              id: "osm",
+              type: "raster",
+              source: "osm",
+            },
+          ],
+        },
         center: [0, 20],
         zoom: 2,
         attributionControl: false,
+        maxZoom: 18,
+        minZoom: 1,
+        renderWorldCopies: true,
       });
 
       map.current.on("load", () => {
         console.log("Map loaded successfully");
+        console.log("Map container dimensions:", mapContainer.current?.offsetWidth, "x", mapContainer.current?.offsetHeight);
+
         // Add custom marker image
         if (map.current) {
           map.current
@@ -87,6 +113,22 @@ export default function MapView({ simulationMode, onStatsUpdate }: MapViewProps)
             });
         }
       });
+
+      map.current.on("styledata", () => {
+        console.log("Map style data loaded");
+      });
+
+      map.current.on("render", () => {
+        console.log("Map rendering");
+      });
+
+      // Force a resize after a short delay to ensure proper rendering
+      setTimeout(() => {
+        if (map.current) {
+          map.current.resize();
+          console.log("Map resized");
+        }
+      }, 100);
 
       map.current.on("error", (e) => {
         console.error("Map error:", e);
@@ -270,5 +312,18 @@ export default function MapView({ simulationMode, onStatsUpdate }: MapViewProps)
     );
   }
 
-  return <div ref={mapContainer} className="w-full h-full" style={{ width: "100%", height: "100vh" }} />;
+  return (
+    <div
+      ref={mapContainer}
+      className="w-full h-full relative"
+      style={{
+        width: "100%",
+        height: "100vh",
+        minHeight: "400px",
+        backgroundColor: "#1a1a1a",
+        position: "relative",
+        zIndex: 1,
+      }}
+    />
+  );
 }

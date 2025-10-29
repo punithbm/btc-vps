@@ -23,8 +23,12 @@ export default function Page() {
 
   return (
     <main className="relative w-screen h-screen bg-black overflow-hidden">
-      <MapView simulationMode={simulationMode} onStatsUpdate={handleStatsUpdate} />
-      <Overlay totalNodes={stats.totalNodes} consensusHeight={stats.consensusHeight} timestamp={stats.timestamp} onSimulationModeChange={handleSimulationModeChange} />
+      <div className="absolute inset-0 z-0">
+        <MapView simulationMode={simulationMode} onStatsUpdate={handleStatsUpdate} />
+      </div>
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <Overlay totalNodes={stats.totalNodes} consensusHeight={stats.consensusHeight} timestamp={stats.timestamp} onSimulationModeChange={handleSimulationModeChange} />
+      </div>
     </main>
   );
 }

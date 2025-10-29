@@ -34,7 +34,7 @@ export default function Overlay({ totalNodes, consensusHeight, timestamp, onSimu
   return (
     <>
       {/* Top-right simulation mode toggle */}
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-10 pointer-events-auto">
         <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 flex gap-2">
           {(["live", "0.01%", "0.1%", "1%"] as SimulationMode[]).map((mode) => (
             <button key={mode} onClick={() => handleModeChange(mode)} className={`px-3 py-2 rounded text-sm font-medium transition-all duration-200 ${currentMode === mode ? "bg-orange-500 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}>
